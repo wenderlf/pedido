@@ -85,10 +85,6 @@ inherited FormBaseCadastro: TFormBaseCadastro
       Caption = 'Edi'#231#227'o'
       ImageIndex = 1
       OnShow = TabSheetEdicaoShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object PanelControlsEdicao: TPanel
         Left = 0
         Top = 416
@@ -140,7 +136,19 @@ inherited FormBaseCadastro: TFormBaseCadastro
     Top = 504
     Width = 670
     Height = 19
-    Panels = <>
+    Panels = <
+      item
+        Text = '[INS] - Novo'
+        Width = 80
+      end
+      item
+        Text = '[ENTER] - Altera'
+        Width = 100
+      end
+      item
+        Text = '[DEL] - Remove'
+        Width = 80
+      end>
   end
   object ImageListButtons: TImageList
     Left = 52

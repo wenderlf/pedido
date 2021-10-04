@@ -72,3 +72,52 @@ ADD CONSTRAINT `fk_produto_produto_pedido`
   REFERENCES `controle_pedido`.`produto` (`codigo`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
+
+
+INSERT INTO `controle_pedido`.`cliente` 
+       (`nome`,`cidade`, `uf`)
+VALUES
+       ('ANDRE SOUZA', 'GOIÂNIA', 'GO'),
+       ('PAULO AUGUSTO', '', 'GO'),
+       ('MARIA PAULA', 'GOIANÉSIA', 'GO'),
+       ('AMÉLIA SANTOS', 'ANÁPOLIS', 'GO'),
+       ('CÁSSIA MARIA', 'SÃO PAULO', 'SP'),
+       ('ANA MARTINS', 'MONTE APRAZÍVEL', 'SP'),
+       ('JOSÉ ALVES', 'FLORIANÓPOLIS', 'SC'),
+       ('JOÃO DAMACENO', 'BLUMENAU', 'SC'),
+       ('PEDRO MODESTO', 'NITERÓI', 'RJ'),
+       ('LUZIA PEREIRA', 'RIO DE JANEIRO', 'RJ'),
+       ('AFONSO CARDOSO', 'FORTALEZA', 'CE'),
+       ('JOÃO JOSÉ SILVA', 'MANAUS', 'AM'),
+       ('CLÁUDIO MARCIANO', 'GOIANÉSIA', 'GO'),
+       ('LUISA NEVES', 'GOIANÉSIA', 'GO'),
+       ('FLÁVIA TAVARES', 'ANÁPOLIS', 'GO'),
+       ('CARLOS MARIANO', 'ANÁPOLIS', 'GO'),
+       ('LOURDES APARECIDA', 'GOIÂNIA', 'GO'),
+       ('KÁSSIA AMARAL', 'GOIÂNIA', 'GO'),
+       ('AUGUSTO TELLES', 'GOIÂNIA', 'GO'),
+       ('PEDRO SILVA', 'GOIÂNIA', 'GO');
+
+INSERT INTO `controle_pedido`.`produto` 
+       (`descricao`,`preco_venda`)
+VALUES
+       ('CHILETE', '0.10'),
+       ('HALLS CEREJA', '1.19'),
+       ('CHOCOLATE MEIO AMARGO', '0.50'),
+       ('CHOCOLATE', '0.49'),
+       ('CAIXA DE CHOCOLATE', '5.99'),
+       ('PIRULITO SABOR MORANGO', '1.99'),
+       ('PIRULITO SABOR UVA', '1.99'),
+       ('PACOTE DE BALAS DE GOMA', '2.19'),
+       ('CAIXA DE CHICLETE', '8.00'),
+       ('DOCE DE LEITE EM BARRA', '3.00'),
+       ('ÁGUA MINERAL', '1.49'),
+       ('CHOCOLATE BRANCO', '0.60'),
+       ('POTE DE SORVETE', '9.99'),
+       ('AÇAÍ 300GR', '8.99'),
+       ('TRIDENT EXTRA FORTE', '0.99'),
+       ('DADINHO SABOR CHOCOLATE E CARAMELO', '1.50'),
+       ('SUCO SABOR LARANJA', '2.20'),
+       ('SUCO SABOR UVA', '3.10'),
+       ('BALA SABOR CARAMELO', '0.80'),
+       ('PICOLÉ SABOR CHOCOLATE', '4.00');

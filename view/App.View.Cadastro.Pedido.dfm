@@ -9,7 +9,10 @@ inherited FormCadastroPedido: TFormCadastroPedido
     ActivePage = TabSheetEdicao
     ExplicitWidth = 743
     inherited TabSheetConsulta: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 27
       ExplicitWidth = 735
+      ExplicitHeight = 473
       inherited PanelButtons: TPanel
         Width = 735
         ExplicitWidth = 735
@@ -19,13 +22,43 @@ inherited FormCadastroPedido: TFormCadastroPedido
       end
     end
     inherited TabSheetEdicao: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 27
       ExplicitWidth = 735
+      ExplicitHeight = 473
       inherited PanelControlsEdicao: TPanel
         Width = 735
         ExplicitWidth = 735
         inherited SpeedButtonSalvar: TSpeedButton
           Left = 674
           ExplicitLeft = 674
+        end
+        object Label4: TLabel
+          Left = 8
+          Top = 12
+          Width = 137
+          Height = 23
+          Caption = 'Total do Pedido:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -19
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object LabelTotalPedido: TLabel
+          Left = 238
+          Top = 12
+          Width = 42
+          Height = 23
+          Alignment = taRightJustify
+          Caption = '0,00'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlue
+          Font.Height = -19
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
         end
       end
       inherited PanelConteudo: TPanel
@@ -45,28 +78,7 @@ inherited FormCadastroPedido: TFormCadastroPedido
           Height = 13
           Caption = 'Cliente'
         end
-        object Label4: TLabel [2]
-          Left = 617
-          Top = 9
-          Width = 74
-          Height = 13
-          Caption = 'Total do Pedido'
-        end
-        object LabelTotalPedido: TLabel [3]
-          Left = 686
-          Top = 22
-          Width = 35
-          Height = 19
-          Alignment = taRightJustify
-          Caption = '0,00'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -16
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object PanelProdutoPedido: TPanel [4]
+        object PanelProdutoPedido: TPanel [2]
           Left = 0
           Top = 64
           Width = 731
@@ -316,8 +328,15 @@ inherited FormCadastroPedido: TFormCadastroPedido
     Width = 743
     ExplicitWidth = 743
   end
+  inherited ImageListButtons: TImageList
+    Left = 164
+    Top = 387
+  end
+  inherited DataSourceConsulta: TDataSource
+    Top = 331
+  end
   object DataSourceConsultaPedidoProduto: TDataSource
-    Left = 316
-    Top = 435
+    Left = 164
+    Top = 275
   end
 end

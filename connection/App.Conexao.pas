@@ -37,7 +37,7 @@ var
 implementation
 
 uses
-  App.Lib.Transaction;
+  App.Lib.Transaction, System.IniFiles;
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
@@ -65,23 +65,43 @@ begin
 end;
 
 procedure TDataModuleConexao.loadConnection;
+const
+  INI_FILE = 'conf.ini';
+  SECTION  = 'DATABASE';
+
+var
+  i            : Integer;
+  LIniFile     : TIniFile;
+  LPathFileIni : String;
+  LListParams  : TStrings;
 begin
   with FDConnection do
   try
-    LoginPrompt := False;
+    LPathFileIni := ExtractFilePath(ParamStr(0))+INI_FILE;
+    if not FileExists(LPathFileIni) then
+      raise Exception.Create('O arquivo de configuração não foi localizado.');
 
-    Close;
-    Params.Clear;
+    try
+      LIniFile := TIniFile.Create(LPathFileIni);
 
-    Params.AddPair('DriverID','MySQL');
-    Params.AddPair('CharacterSet','utf8');
-    Params.AddPair('User_Name','root');
-    Params.AddPair('Password','wlf16nanny');
-    Params.AddPair('Port','3306');
-    Params.AddPair('Server','127.0.0.1');
-    Params.AddPair('Database','controle_pedido');
+      LListParams := TStringList.Create;
+      LIniFile.ReadSection(SECTION, LListParams);
 
-    Open;
+      LoginPrompt := False;
+
+      Close;
+      Params.Clear;
+      Params.AddPair('DriverID','MySQL');
+      Params.AddPair('CharacterSet','utf8');
+
+      for i := 0 to LListParams.Count-1 do
+        Params.AddPair(LListParams[i], LIniFile.ReadString(SECTION, LListParams[i], EmptyStr));
+
+      Open;
+    finally
+      FreeAndNil(LIniFile);
+      FreeAndNil(LListParams)
+    end;
   except
     raise EFDException.Create('Ocorreu um erro com a conexão ao banco de dados.'+#13#10+
                               'A aplicação será fechada.');

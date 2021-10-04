@@ -23,8 +23,6 @@ type
     Label2: TLabel;
     ComboBoxCliente: TComboBox;
     Label3: TLabel;
-    Label4: TLabel;
-    LabelTotalPedido: TLabel;
     DataSourceConsultaPedidoProduto: TDataSource;
     SpeedButtonSalvarProdutoPedido: TSpeedButton;
     LabeledEditRegistro: TLabeledEdit;
@@ -35,6 +33,8 @@ type
     LabelTotalProduto: TLabel;
     LabelValorUnitario: TLabel;
     LabeledEditQuantidade: TLabeledEdit;
+    Label4: TLabel;
+    LabelTotalPedido: TLabel;
     procedure SpeedButtonNovoProdutoPedidoClick(Sender: TObject);
     procedure SpeedButtonAlterarProdutoPedidoClick(Sender: TObject);
     procedure SpeedButtonRemoverProdutoPedidoClick(Sender: TObject);
