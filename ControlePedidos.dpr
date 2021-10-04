@@ -22,7 +22,9 @@ uses
   App.Controller.ProdutoPedido in 'controller\App.Controller.ProdutoPedido.pas',
   App.Controller.Pedido in 'controller\App.Controller.Pedido.pas',
   App.Base.View.Cadastro in 'base\App.Base.View.Cadastro.pas' {FormBaseCadastro},
-  App.View.Cadastro.Pedido in 'view\App.View.Cadastro.Pedido.pas' {FormCadastroPedido};
+  App.View.Cadastro.Pedido in 'view\App.View.Cadastro.Pedido.pas' {FormCadastroPedido},
+  App.View.Cadastro.Cliente in 'view\App.View.Cadastro.Cliente.pas' {FormCadastroCliente},
+  App.View.Cadastro.Produto in 'view\App.View.Cadastro.Produto.pas' {FormCadastroProduto};
 
 {$R *.res}
 

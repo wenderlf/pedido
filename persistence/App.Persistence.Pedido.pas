@@ -62,7 +62,7 @@ begin
   SetNameFieldDataSet(ADataSet, 'CODIGO', 'Número Pedido');
   SetNameFieldDataSet(ADataSet, 'DATA_EMISSAO', 'Data Emissão');
   SetNameFieldDataSet(ADataSet, 'VALOR_TOTAL', 'Valor Total');
-  SetNameFieldDataSet(ADataSet, 'CLIENTE', 'Cliente', 50, True);
+  SetNameFieldDataSet(ADataSet, 'CLIENTE', 'Cliente', 50);
 end;
 
 end.

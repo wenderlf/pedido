@@ -19,10 +19,7 @@ inherited FormCadastroPedido: TFormCadastroPedido
       end
     end
     inherited TabSheetEdicao: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 27
       ExplicitWidth = 735
-      ExplicitHeight = 473
       inherited PanelControlsEdicao: TPanel
         Width = 735
         ExplicitWidth = 735
@@ -238,6 +235,7 @@ inherited FormCadastroPedido: TFormCadastroPedido
               Height = 21
               Style = csDropDownList
               TabOrder = 1
+              OnSelect = ComboBoxProdutoSelect
             end
             object LabeledEditQuantidade: TLabeledEdit
               Left = 413
@@ -249,6 +247,7 @@ inherited FormCadastroPedido: TFormCadastroPedido
               EditLabel.Height = 13
               EditLabel.Caption = 'Quantidade'
               TabOrder = 2
+              OnChange = LabeledEditQuantidadeChange
               OnKeyPress = LabeledEditQuantidadeKeyPress
             end
           end

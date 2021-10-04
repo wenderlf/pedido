@@ -47,6 +47,8 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure DBGridConsultaProdutoPedidoDblClick(Sender: TObject);
     procedure LabeledEditQuantidadeKeyPress(Sender: TObject; var Key: Char);
+    procedure ComboBoxProdutoSelect(Sender: TObject);
+    procedure LabeledEditQuantidadeChange(Sender: TObject);
   private
     { Private declarations }
     FRecordDataSetProdutoPedido : Integer;
@@ -59,6 +61,7 @@ type
     procedure FillProdutoPedido;
     procedure ChangeConsultaProdutoPedido;
     procedure InstanceProdutoPedidoController;
+    procedure calcularTotalProduto;
 
     procedure LoadInfoComboCliente;
     procedure LoadInfoComboProduto;
@@ -73,6 +76,7 @@ type
     procedure ExecuteAfterShowTabEdicao; override;
     procedure ClearFormCadastro; override;
     procedure FillForm; override;
+    procedure PostForm; override;
     function ConsistForm: Boolean; override;
 
   public
@@ -99,6 +103,13 @@ begin
   ClearProdutoPedido;
 
   ComboBoxProduto.SetFocus;
+end;
+
+procedure TFormCadastroPedido.calcularTotalProduto;
+begin
+  LabelTotalProduto.Caption := FormatFloat(',0.00',
+                                 ConvertStringToDouble(LabeledEditQuantidade.Text) *
+                                 ConvertStringToDouble(LabelValorUnitario.Caption));
 end;
 
 procedure TFormCadastroPedido.ChangeConsultaProdutoPedido;
@@ -153,6 +164,24 @@ procedure TFormCadastroPedido.ClosePanelCadastroProdutoPedido;
 begin
   ClearProdutoPedido;
   PanelCadastroProdutoPedido.Visible := False;
+end;
+
+procedure TFormCadastroPedido.ComboBoxProdutoSelect(Sender: TObject);
+var
+  LValor : Double;
+begin
+  inherited;
+  try
+    LValor := 0;
+
+    if ComboBoxProduto.ItemIndex <= 0 then
+      Exit;
+
+    LValor := TProduto(ComboBoxProduto.Items.Objects[ComboBoxProduto.ItemIndex]).PrecoVenda;
+  finally
+    LabelValorUnitario.Caption := FormatFloat(',0.00', LValor);
+    calcularTotalProduto;
+  end;
 end;
 
 function TFormCadastroPedido.ConsistForm: Boolean;
@@ -277,6 +306,8 @@ procedure TFormCadastroPedido.FormCreate(Sender: TObject);
 begin
   inherited;
   FListRemoveProdutosPedido := TStringList.Create;
+  FocusedControl := CalendarPickerDataEmissao;
+
 end;
 
 procedure TFormCadastroPedido.FormDestroy(Sender: TObject);
@@ -300,6 +331,12 @@ end;
 procedure TFormCadastroPedido.InstanceProdutoPedidoController;
 begin
   FProdutoPedidoController := TProdutoPedidoController.Create;
+end;
+
+procedure TFormCadastroPedido.LabeledEditQuantidadeChange(Sender: TObject);
+begin
+  inherited;
+  calcularTotalProduto;
 end;
 
 procedure TFormCadastroPedido.LabeledEditQuantidadeKeyPress(Sender: TObject;
@@ -361,6 +398,22 @@ begin
   finally
     FreeAndNil(LListProduto);
     FreeAndNil(LController)
+  end;
+end;
+
+procedure TFormCadastroPedido.PostForm;
+var
+  LPedido : TPedido;
+begin
+  try
+    inherited;
+
+    LPedido := ObjectPost as TPedido;
+    LPedido.DataEmissao   := CalendarPickerDataEmissao.Date;
+    LPedido.CodigoCliente := SelectedItemComboModel(ComboBoxCliente);
+    LPedido.ValorTotal    := ConvertStringToDouble(LabelTotalPedido.Caption);
+   except
+    raise;
   end;
 end;
 

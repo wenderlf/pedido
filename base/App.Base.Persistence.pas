@@ -155,6 +155,9 @@ begin
   try
     for LField in AQuery.Fields do
     begin
+      if Assigned(FDataSetConsulta.FindField(LField.FieldName)) then
+        Continue;
+
       if LField.DataType = ftInteger then
       begin
         LNewField := TIntegerField.Create(FDataSetConsulta);
@@ -419,8 +422,11 @@ begin
 
     CreateFieldsDataSet(AQuery);
 
-    if Assigned(AProc) then
+    if (Assigned(AProc)) and
+       (not FDataSetConsulta.Active) then
+    begin
       AProc(FDataSetConsulta);
+    end;
 
     SetInfoDataSet(AQuery);
 

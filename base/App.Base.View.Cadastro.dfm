@@ -19,10 +19,6 @@ inherited FormBaseCadastro: TFormBaseCadastro
     object TabSheetConsulta: TTabSheet
       Caption = 'Consulta'
       OnShow = TabSheetConsultaShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object PanelButtons: TPanel
         Left = 0
         Top = 0
@@ -89,10 +85,6 @@ inherited FormBaseCadastro: TFormBaseCadastro
       Caption = 'Edi'#231#227'o'
       ImageIndex = 1
       OnShow = TabSheetEdicaoShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object PanelControlsEdicao: TPanel
         Left = 0
         Top = 416

@@ -39,11 +39,13 @@ type
     procedure DBGridConsultaDblClick(Sender: TObject);
   private
     { Private declarations }
-    FController : TBaseController;
-    FObjectPost : TBaseModel;
+    FController     : TBaseController;
+    FObjectPost     : TBaseModel;
+    FFocusedControl : TWinControl;
 
     procedure SetController(const Value: TBaseController);
     procedure SetObjectPost(const Value: TBaseModel);
+    procedure SetFocusedControl(const Value: TWinControl);
 
   protected
     procedure MessageSuccessOperation;
@@ -51,6 +53,7 @@ type
     procedure removeListObjectsCombo(const ACombo: TComboBox);
     procedure FormatterStringToDouble(const ALabeledEdit: TLabeledEdit;
       var AKey: Char);
+    function ConvertStringToDouble(const Value: String): Double;
 
     function SelectedItemComboModel(const ACombo: TComboBox): Integer;
     procedure SelectItemComboModel(const ACodigo: Integer;
@@ -67,10 +70,12 @@ type
     procedure ExecuteAfterShowTabEdicao; virtual;
     procedure ClearFormCadastro; virtual;
     procedure FillForm; virtual;
+    procedure PostForm; virtual;
     function ConsistForm: Boolean; virtual; abstract;
 
-    property Controller : TBaseController read FController write SetController;
-    property ObjectPost : TBaseModel      read FObjectPost write SetObjectPost;
+    property Controller     : TBaseController read FController write SetController;
+    property ObjectPost     : TBaseModel      read FObjectPost write SetObjectPost;
+    property FocusedControl : TWinControl                      write SetFocusedControl;
 
   public
     { Public declarations }
@@ -102,6 +107,9 @@ begin
     FreeAndNil(FObjectPost);
 
   LabeledEditCodigo.Clear;
+
+  if Assigned(FFocusedControl) then
+    FFocusedControl.SetFocus;
 end;
 
 function TFormBaseCadastro.ConsistRecordsDataSet(
@@ -116,6 +124,16 @@ begin
     Application.MessageBox(PChar('Não existe registro para alteração'),PChar('Aviso'),
       MB_OK + MB_ICONWARNING);
   end;
+end;
+
+function TFormBaseCadastro.ConvertStringToDouble(const Value: String): Double;
+var
+  LValorString : String;
+begin
+  LValorString := StringReplace(Value, '.', EmptyStr, [rfReplaceAll]);
+//  LValorString := StringReplace(LValorString, ',', '.', [rfReplaceAll]);
+
+  Result := StrToFloatDef(LValorString, 0);
 end;
 
 procedure TFormBaseCadastro.DBGridConsultaDblClick(Sender: TObject);
@@ -217,7 +235,7 @@ begin
   SetAllImageButtons;
 
   InstanceController;
-  changeConsulta;
+//  changeConsulta;
 end;
 
 procedure TFormBaseCadastro.FormDestroy(Sender: TObject);
@@ -234,6 +252,11 @@ procedure TFormBaseCadastro.MessageSuccessOperation;
 begin
   Application.MessageBox(PChar('Operação realizada com sucesso.'),
           PChar('Informação'), MB_OK + MB_ICONINFORMATION)
+end;
+
+procedure TFormBaseCadastro.PostForm;
+begin
+  FObjectPost.Codigo := StrToIntDef(LabeledEditCodigo.Text, 0);
 end;
 
 procedure TFormBaseCadastro.removeListObjectsCombo(const ACombo: TComboBox);
@@ -306,6 +329,11 @@ begin
   FController := Value;
 end;
 
+procedure TFormBaseCadastro.SetFocusedControl(const Value: TWinControl);
+begin
+  FFocusedControl := Value;
+end;
+
 procedure TFormBaseCadastro.SetImageToButton(const Button: TSpeedButton;
   const AIndexImage: Integer);
 var
@@ -355,25 +383,38 @@ begin
 end;
 
 procedure TFormBaseCadastro.SpeedButtonRemoverClick(Sender: TObject);
+var
+  LRecordPosition : Integer;
 begin
   inherited;
   with DataSourceConsulta do
   try
-    if (not DataSet.Active) then
+    if (not DataSet.Active) or
+       (DataSet.RecordCount = 0) then
       raise Exception.Create('Não existem informações para realizar a operação.');
 
     if Application.MessageBox(PChar('Deseja remover o registro?'),
         PChar('Confirmação'), MB_YESNO + MB_ICONQUESTION) = IDNO then
       Exit;
 
+    LRecordPosition := DataSet.RecNo;
     FController.Delete(DataSet.FieldByName('CODIGO').AsInteger);
     MessageSuccessOperation;
+
+    ChangeConsulta;
+    if LRecordPosition <= DataSet.RecordCount then
+      DataSet.RecNo := LRecordPosition
+    else
+    if DataSet.RecordCount > 0 then
+      DataSet.RecNo := DataSet.RecordCount;
   except
     raise;
   end;
 end;
 
 procedure TFormBaseCadastro.SpeedButtonSalvarClick(Sender: TObject);
+var
+  LCodigo : Integer;
 begin
   inherited;
   if not ConsistForm then
@@ -381,14 +422,24 @@ begin
 
   try
     try
+      LCodigo := StrToIntDef(LabeledEditCodigo.Text, 0);
       InstanceObjectPost;
+      PostForm;
 
-
+      FController.Post(FObjectPost);
     finally
       FreeAndNil(FObjectPost);
     end;
 
     MessageSuccessOperation;
+    TabSheetEdicaoShow(Sender);
+
+    if LCodigo > 0 then
+    begin
+      PageControlPrincipal.ActivePage := TabSheetConsulta;
+      TabSheetEdicaoShow(Sender);
+      DataSourceConsulta.DataSet.Locate('CODIGO', LCodigo, []);
+    end;
   except
     raise;
   end;
@@ -397,6 +448,7 @@ end;
 procedure TFormBaseCadastro.TabSheetConsultaShow(Sender: TObject);
 begin
   inherited;
+  ChangeConsulta;
   DBGridConsulta.SetFocus;
 end;
 

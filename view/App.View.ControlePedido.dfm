@@ -30,9 +30,11 @@ inherited FormControlePedido: TFormControlePedido
       Caption = '&Cadastros'
       object Clientes1: TMenuItem
         Caption = '&Clientes'
+        OnClick = Clientes1Click
       end
       object Produtos1: TMenuItem
         Caption = '&Produtos'
+        OnClick = Produtos1Click
       end
     end
     object Movimentaes1: TMenuItem
