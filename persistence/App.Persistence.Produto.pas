@@ -11,6 +11,7 @@ type
     procedure SetInfoFieldsDataSet(const ADataSet: TFDMemTable);
   protected
     function GetNewInstanceModel: TBaseModel; override;
+    procedure AfterCreateClass; override;
   public
     function GetResultSet: TFDMemTable; override;
   end;
@@ -21,6 +22,12 @@ uses
   App.Model.Produto;
 
 { TProdutoPersistence }
+
+procedure TProdutoPersistence.AfterCreateClass;
+begin
+  inherited;
+  OrderBy := 'descricao';
+end;
 
 function TProdutoPersistence.GetNewInstanceModel: TBaseModel;
 begin
@@ -58,7 +65,7 @@ procedure TProdutoPersistence.SetInfoFieldsDataSet(const ADataSet: TFDMemTable);
 begin
   SetNameFieldDataSet(ADataSet, 'CODIGO', 'Código', 10);
   SetNameFieldDataSet(ADataSet, 'DESCRICAO', 'Produto', 50);
-  SetNameFieldDataSet(ADataSet, 'PRECO_VENDA', 'Preço Venda', 0);
+  SetNameFieldDataSet(ADataSet, 'PRECO_VENDA', 'Preço Venda', 12);
 end;
 
 end.

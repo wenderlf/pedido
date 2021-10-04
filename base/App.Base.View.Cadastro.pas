@@ -64,7 +64,7 @@ type
       const AIndexImage: Integer);
 
     procedure InstanceController; virtual; abstract;
-    procedure InstanceObjectPost; virtual; abstract;
+    procedure InstanceObjectPost; virtual;
     procedure ChangeConsulta; virtual;
 
     procedure ExecuteAfterShowTabEdicao; virtual;
@@ -108,7 +108,8 @@ begin
 
   LabeledEditCodigo.Clear;
 
-  if Assigned(FFocusedControl) then
+  if (Assigned(FFocusedControl)) and
+     (PageControlPrincipal.ActivePage = TabSheetEdicao) then
     FFocusedControl.SetFocus;
 end;
 
@@ -244,6 +245,12 @@ begin
   if Assigned(FController) then
     FreeAndNil(FController);
 
+  if Assigned(FObjectPost) then
+    FreeAndNil(FObjectPost);
+end;
+
+procedure TFormBaseCadastro.InstanceObjectPost;
+begin
   if Assigned(FObjectPost) then
     FreeAndNil(FObjectPost);
 end;

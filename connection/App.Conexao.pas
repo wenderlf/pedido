@@ -13,12 +13,13 @@ type
   TDataModuleConexao = class(TDataModule)
     FDConnection: TFDConnection;
     FDPhysMySQLDriverLink: TFDPhysMySQLDriverLink;
-    FDGUIxWaitCursor: TFDGUIxWaitCursor;
-    FDTransaction: TFDTransaction;
     procedure DataModuleCreate(Sender: TObject);
+    procedure DataModuleDestroy(Sender: TObject);
   private
     { Private declarations }
     FCodeTransaction : Int64;
+
+    procedure loadConnection;
 
   public
     { Public declarations }
@@ -35,6 +36,9 @@ var
 
 implementation
 
+uses
+  App.Lib.Transaction;
+
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
 {$R *.dfm}
@@ -45,6 +49,22 @@ begin
 end;
 
 procedure TDataModuleConexao.DataModuleCreate(Sender: TObject);
+begin
+  loadConnection;
+  TTransaction.GetInstance;
+end;
+
+procedure TDataModuleConexao.DataModuleDestroy(Sender: TObject);
+begin
+  TTransaction.GetInstance.Free;
+end;
+
+function TDataModuleConexao.GetConnection: TFDConnection;
+begin
+  Result := FDConnection;
+end;
+
+procedure TDataModuleConexao.loadConnection;
 begin
   with FDConnection do
   try
@@ -66,11 +86,6 @@ begin
     raise EFDException.Create('Ocorreu um erro com a conexão ao banco de dados.'+#13#10+
                               'A aplicação será fechada.');
   end;
-end;
-
-function TDataModuleConexao.GetConnection: TFDConnection;
-begin
-  Result := FDConnection;
 end;
 
 procedure TDataModuleConexao.Rollback;

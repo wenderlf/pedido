@@ -6,24 +6,33 @@ inherited FormCadastroCliente: TFormCadastroCliente
   TextHeight = 13
   inherited PageControlPrincipal: TPageControl
     Width = 547
-    ActivePage = TabSheetEdicao
+    ExplicitWidth = 547
     inherited TabSheetConsulta: TTabSheet
+      ExplicitWidth = 539
       inherited PanelButtons: TPanel
         Width = 539
+        ExplicitWidth = 539
       end
       inherited DBGridConsulta: TDBGrid
         Width = 539
       end
     end
     inherited TabSheetEdicao: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 27
+      ExplicitWidth = 539
+      ExplicitHeight = 473
       inherited PanelControlsEdicao: TPanel
         Width = 539
+        ExplicitWidth = 539
         inherited SpeedButtonSalvar: TSpeedButton
           Left = 478
+          ExplicitLeft = 478
         end
       end
       inherited PanelConteudo: TPanel
         Width = 539
+        ExplicitWidth = 539
         object LabeledEditNome: TLabeledEdit
           Left = 8
           Top = 72
@@ -65,5 +74,6 @@ inherited FormCadastroCliente: TFormCadastroCliente
   end
   inherited StatusBar1: TStatusBar
     Width = 547
+    ExplicitWidth = 547
   end
 end

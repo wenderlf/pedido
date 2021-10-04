@@ -16,6 +16,7 @@ type
     function GetNewInstanceModel: TBaseModel; override;
   public
     function GetResultSet: TFDMemTable; override;
+    procedure DeleteByCodigoPedido(const ACodigoPedido: Integer);
 
     property CodigoPedido: Integer write SetCodigoPedido;
   end;
@@ -26,6 +27,23 @@ uses
   App.Model.ProdutoPedido, System.Classes, System.SysUtils;
 
 { TProdutoPedidoPersistence }
+
+procedure TProdutoPedidoPersistence.DeleteByCodigoPedido(
+  const ACodigoPedido: Integer);
+var
+  LSql : String;
+begin
+  try
+    LSql := 'delete from produto_pedido '
+          + ' where codigo_pedido = '+ACodigoPedido.ToString;
+
+    Query.Close;
+    Query.SQL.Text := LSql;
+    Query.ExecSQL;
+  except
+    raise;
+  end;
+end;
 
 function TProdutoPedidoPersistence.GetNewInstanceModel: TBaseModel;
 begin
@@ -73,13 +91,13 @@ end;
 procedure TProdutoPedidoPersistence.SetInfoFieldsDataSet(
   const ADataSet: TFDMemTable);
 begin
-  SetNameFieldDataSet(ADataSet, 'CODIGO_PRODUTO', 'Código Produto');
-  SetNameFieldDataSet(ADataSet, 'PRODUTO', 'Produto', 60);
-  SetNameFieldDataSet(ADataSet, 'QUANTIDADE', 'Quantidade');
-  SetNameFieldDataSet(ADataSet, 'VALOR_UNITARIO', 'Valor Unitário');
-  SetNameFieldDataSet(ADataSet, 'VALOR_TOTAL', 'Valor Total');
-  SetNameFieldDataSet(ADataSet, 'CODIGO', 'Código', 0, False);
-  SetNameFieldDataSet(ADataSet, 'CODIGO_PEDIDO', 'Código Pedido', 0, False);
+  SetNameFieldDataSet(ADataSet, 'CODIGO_PRODUTO', 'Código Produto', 10);
+  SetNameFieldDataSet(ADataSet, 'PRODUTO', 'Produto', 45);
+  SetNameFieldDataSet(ADataSet, 'QUANTIDADE', 'Quantidade', 15);
+  SetNameFieldDataSet(ADataSet, 'VALOR_UNITARIO', 'Valor Unitário', 15);
+  SetNameFieldDataSet(ADataSet, 'VALOR_TOTAL', 'Valor Total', 15);
+  SetNameFieldDataSet(ADataSet, 'CODIGO', 'Código', 10, False);
+  SetNameFieldDataSet(ADataSet, 'CODIGO_PEDIDO', 'Código Pedido', 10, False);
 end;
 
 end.

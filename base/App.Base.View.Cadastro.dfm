@@ -85,6 +85,10 @@ inherited FormBaseCadastro: TFormBaseCadastro
       Caption = 'Edi'#231#227'o'
       ImageIndex = 1
       OnShow = TabSheetEdicaoShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object PanelControlsEdicao: TPanel
         Left = 0
         Top = 416

@@ -4,26 +4,35 @@ interface
 
 uses
   App.Base.Model, System.Generics.Collections, App.Base.Persistence,
-  FireDAC.Comp.Client;
+  FireDAC.Comp.Client, App.Lib.Transaction;
 
 type
   TBaseController = class
   private
     FPersistence : TBasePersistence;
+    FTransaction : TTransaction;
+
     procedure SetPersistence(const Value: TBasePersistence);
+
   protected
     procedure InstancePersistence; virtual; abstract;
+    procedure AfterCreateClass; virtual;
+
+    procedure AfterPost(const AModel: TBaseModel); virtual;
+    procedure BeforeDelete(const ACodigo: Integer); virtual;
 
     property Persistence : TBasePersistence read FPersistence write SetPersistence;
+    property Transaction : TTransaction     read FTransaction;
+
   public
     constructor Create;
     destructor Destroy; override;
 
-    function FindById(const AID: Integer): TBaseModel; virtual;
+    function FindById(const ACodigo: Integer): TBaseModel; virtual;
     function FindAll: TList<TBaseModel>; virtual;
 
-    function Delete(const AID: Integer): Boolean; virtual;
-    function Post(const AModel: TBaseModel): Integer;
+    function Delete(const ACodigo: Integer): Boolean; virtual;
+    function Post(const AModel: TBaseModel): Integer; virtual;
 
     function GetResultSet: TFDMemTable;
 
@@ -37,6 +46,21 @@ uses
 
 { TBaseController }
 
+procedure TBaseController.AfterCreateClass;
+begin
+//
+end;
+
+procedure TBaseController.AfterPost(const AModel: TBaseModel);
+begin
+//
+end;
+
+procedure TBaseController.BeforeDelete(const ACodigo: Integer);
+begin
+//
+end;
+
 procedure TBaseController.Clear;
 begin
   try
@@ -48,14 +72,24 @@ end;
 
 constructor TBaseController.Create;
 begin
+  FTransaction := TTransaction.GetInstance;
   InstancePersistence;
+  AfterCreateClass;
 end;
 
-function TBaseController.Delete(const AID: Integer): Boolean;
+function TBaseController.Delete(const ACodigo: Integer): Boolean;
+var
+  LUIDTransaction : Int64;
 begin
   try
-    Result := FPersistence.Delete(AID);
+    LUIDTransaction := FTransaction.Start;
+
+    BeforeDelete(ACodigo);
+    Result := FPersistence.Delete(ACodigo);
+
+    FTransaction.Comiit(LUIDTransaction);
   except
+    FTransaction.Rollback(LUIDTransaction);
     raise;
   end;
 end;
@@ -77,10 +111,10 @@ begin
   end;
 end;
 
-function TBaseController.FindById(const AID: Integer): TBaseModel;
+function TBaseController.FindById(const ACodigo: Integer): TBaseModel;
 begin
   try
-    Result := FPersistence.FindById(AID);
+    Result := FPersistence.FindById(ACodigo);
   except
     raise;
   end;
@@ -96,10 +130,20 @@ begin
 end;
 
 function TBaseController.Post(const AModel: TBaseModel): Integer;
+var
+  LUIDTransaction : Int64;
 begin
   try
+    LUIDTransaction := FTransaction.Start;
+
     Result := FPersistence.Post(AModel);
+
+    AModel.Codigo := Result;
+    AfterPost(AModel);
+
+    FTransaction.Comiit(LUIDTransaction);
   except
+    FTransaction.Rollback(LUIDTransaction);
     raise;
   end;
 end;

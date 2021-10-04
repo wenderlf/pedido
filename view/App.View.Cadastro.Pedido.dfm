@@ -217,7 +217,7 @@ inherited FormCadastroPedido: TFormCadastroPedido
               Transparent = True
               Layout = tlCenter
             end
-            object LabeledEditCodigoProdutoPedido: TLabeledEdit
+            object LabeledEditRegistro: TLabeledEdit
               Left = 8
               Top = 24
               Width = 97

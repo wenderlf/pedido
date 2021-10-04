@@ -11,6 +11,7 @@ type
     procedure SetInfoFieldsDataSet(const ADataSet: TFDMemTable);
   protected
     function GetNewInstanceModel: TBaseModel; override;
+    procedure AfterCreateClass; override;
   public
     function GetResultSet: TFDMemTable; override;
   end;
@@ -21,6 +22,12 @@ uses
   App.Model.Cliente;
 
 { TClientePersistence }
+
+procedure TClientePersistence.AfterCreateClass;
+begin
+  inherited;
+  OrderBy := 'nome';
+end;
 
 function TClientePersistence.GetNewInstanceModel: TBaseModel;
 begin

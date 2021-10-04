@@ -14,6 +14,8 @@ type
     procedure InstancePersistence; override;
 
   public
+    procedure DeleteByCodigoPedido(ACodigoPedido: Integer);
+
     property CodigoPedido: Integer write SetCodigoPedido;
 
   end;
@@ -25,6 +27,22 @@ uses
   App.Persistence.ProdutoPedido;
 
 { TProdutoPedidoController }
+
+procedure TProdutoPedidoController.DeleteByCodigoPedido(ACodigoPedido: Integer);
+var
+  LUIDTransaction : Int64;
+begin
+  try
+    LUIDTransaction := Transaction.Start;
+
+    TProdutoPedidoPersistence(Persistence).DeleteByCodigoPedido(ACodigoPedido);
+
+    Transaction.Comiit(LUIDTransaction);
+  except
+    Transaction.Rollback(LUIDTransaction);
+    raise;
+  end;
+end;
 
 procedure TProdutoPedidoController.InstancePersistence;
 begin

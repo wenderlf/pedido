@@ -15,12 +15,14 @@ type
     FQueryAux        : TFDQuery;
     FTableName       : String;
     FDataSetConsulta : TFDMemTable;
+    FOrderBy         : String;
 
     function GetLastCodigo: Integer;
     function GetModelByDataSet(const AQuery: TFDQuery): TBaseModel; virtual;
 
     procedure CreateFieldsDataSet(const AQuery: TFDQuery);
     procedure SetInfoDataSet(const AQuery: TFDQuery);
+    procedure SetOrderBy(const Value: String);
 
   protected
     function convertClassPropToTableField(Value: String): String;
@@ -42,19 +44,26 @@ type
       const AFieldName, ADisplayLabel: String; const ASize: Integer=0;
       const AVisible: Boolean=True);
 
+    procedure AfterCreateClass; virtual;
+
     property Query           : TFDQuery    read FQuery;
     property QueryAux        : TFDQuery    read FQueryAux;
     property TableName       : String      read FTableName;
     property DataSetConsulta : TFDMemTable read FDataSetConsulta;
+    property OrderBy         : String                            write SetOrderBy;
 
   public
     constructor Create;
     destructor Destroy; override;
 
-    function FindById(const AID: Integer): TBaseModel; virtual;
+    procedure StartTransaction;
+    procedure Commit;
+    procedure Rollback;
+
+    function FindById(const ACodigo: Integer): TBaseModel; virtual;
     function FindAll: TList<TBaseModel>; virtual;
 
-    function Delete(const AID: Integer): Boolean; virtual;
+    function Delete(const ACodigo: Integer): Boolean; virtual;
     function Post(const AModel: TBaseModel): Integer;
 
     function GetResultSet: TFDMemTable; virtual; abstract;
@@ -68,11 +77,21 @@ uses
 
 { TBasePersistence }
 
+procedure TBasePersistence.AfterCreateClass;
+begin
+//
+end;
+
 procedure TBasePersistence.ClearDataSetConsulta;
 begin
   if (Assigned(FDataSetConsulta)) and
      (FDataSetConsulta.Active) then
     FDataSetConsulta.EmptyDataSet;
+end;
+
+procedure TBasePersistence.Commit;
+begin
+  DataModuleConexao.Commit;
 end;
 
 function TBasePersistence.convertClassPropToTableField(
@@ -145,6 +164,8 @@ begin
   FQueryAux.Connection := DataModuleConexao.GetConnection;
 
   FDataSetConsulta := TFDMemTable.Create(nil);
+
+  AfterCreateClass;
 end;
 
 procedure TBasePersistence.CreateFieldsDataSet(const AQuery: TFDQuery);
@@ -158,7 +179,8 @@ begin
       if Assigned(FDataSetConsulta.FindField(LField.FieldName)) then
         Continue;
 
-      if LField.DataType = ftInteger then
+      if (LField.DataType = ftInteger) or
+         (LField.DataType = ftAutoInc) then
       begin
         LNewField := TIntegerField.Create(FDataSetConsulta);
         LNewField.FieldName := LField.FieldName;
@@ -195,7 +217,7 @@ begin
   end;
 end;
 
-function TBasePersistence.Delete(const AID: Integer): Boolean;
+function TBasePersistence.Delete(const ACodigo: Integer): Boolean;
 var
   LSql : String;
 begin
@@ -203,7 +225,7 @@ begin
     Result := False;
 
     LSql := 'delete from '+FTableName
-          + ' where codigo = '+AID.ToString;
+          + ' where codigo = '+ACodigo.ToString;
 
     FQuery.Close;
     FQuery.SQL.Text := LSql;
@@ -234,6 +256,11 @@ begin
 
     LSql := 'select * from '+FTableName;
 
+    if not FOrderBy.IsEmpty then
+      LSql := LSql
+            + ' order by '
+            + FOrderBy;
+
     FQuery.Close;
     FQuery.SQL.Text := LSql;
     FQuery.Open;
@@ -249,7 +276,7 @@ begin
   end;
 end;
 
-function TBasePersistence.FindById(const AID: Integer): TBaseModel;
+function TBasePersistence.FindById(const ACodigo: Integer): TBaseModel;
 var
   LSql : String;
 begin
@@ -257,7 +284,7 @@ begin
     Result := nil;
 
     LSql := 'select * from '+FTableName
-          + ' where codigo = '+AID.ToString;
+          + ' where codigo = '+ACodigo.ToString;
 
     FQuery.Close;
     FQuery.SQL.Text := LSql;
@@ -413,6 +440,11 @@ begin
   end;
 end;
 
+procedure TBasePersistence.Rollback;
+begin
+  DataModuleConexao.Rollback;
+end;
+
 procedure TBasePersistence.SetDataSetByQuery(const AQuery: TFDQuery;
   const AProc: TProcFieldDataSet);
 begin
@@ -466,9 +498,14 @@ procedure TBasePersistence.SetNameFieldDataSet(const ADataSet: TFDMemTable;
   const AFieldName, ADisplayLabel: String; const ASize: Integer;
   const AVisible: Boolean);
 begin
-  ADataSet.FieldByName(AFieldName).Size         := ASize;
+  ADataSet.FieldByName(AFieldName).DisplayWidth := ASize;
   ADataSet.FieldByName(AFieldName).DisplayLabel := ADisplayLabel.Trim;
   ADataSet.FieldByName(AFieldName).Visible      := AVisible;
+end;
+
+procedure TBasePersistence.SetOrderBy(const Value: String);
+begin
+  FOrderBy := Value;
 end;
 
 procedure TBasePersistence.SetValueParamsByModel(const AQuery: TFDQuery;
@@ -490,6 +527,11 @@ begin
   except
     raise;
   end;
+end;
+
+procedure TBasePersistence.StartTransaction;
+begin
+  DataModuleConexao.StartTransaction;
 end;
 
 function TBasePersistence.Update(const AModel: TBaseModel): Integer;

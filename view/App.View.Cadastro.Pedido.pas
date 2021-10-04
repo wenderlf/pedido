@@ -27,7 +27,7 @@ type
     LabelTotalPedido: TLabel;
     DataSourceConsultaPedidoProduto: TDataSource;
     SpeedButtonSalvarProdutoPedido: TSpeedButton;
-    LabeledEditCodigoProdutoPedido: TLabeledEdit;
+    LabeledEditRegistro: TLabeledEdit;
     Label5: TLabel;
     ComboBoxProduto: TComboBox;
     Label7: TLabel;
@@ -51,17 +51,20 @@ type
     procedure LabeledEditQuantidadeChange(Sender: TObject);
   private
     { Private declarations }
-    FRecordDataSetProdutoPedido : Integer;
-    FListRemoveProdutosPedido   : TStrings;
-    FProdutoPedidoController    : TProdutoPedidoController;
+    FListRemoveProdutosPedido : TStrings;
+    FProdutoPedidoController  : TProdutoPedidoController;
 
     procedure ClearProdutoPedido;
     procedure ClosePanelCadastroProdutoPedido;
     procedure ActivePanelCadastroProdutoPedido;
     procedure FillProdutoPedido;
+    function ConsistFormProdutoPedido: Boolean;
     procedure ChangeConsultaProdutoPedido;
     procedure InstanceProdutoPedidoController;
+    procedure PostProdutoPedido;
+
     procedure calcularTotalProduto;
+    procedure calcularTotalPedido;
 
     procedure LoadInfoComboCliente;
     procedure LoadInfoComboProduto;
@@ -72,6 +75,7 @@ type
   protected
     procedure SetAllImageButtons; override;
     procedure InstanceController; override;
+    procedure InstanceObjectPost; override;
 
     procedure ExecuteAfterShowTabEdicao; override;
     procedure ClearFormCadastro; override;
@@ -91,7 +95,7 @@ implementation
 uses
   App.Controller.Pedido, System.Generics.Collections, App.Model.Cliente,
   App.Controller.Cliente, App.Base.Model, App.Model.Produto,
-  App.Controller.Produto, App.Model.Pedido;
+  App.Controller.Produto, App.Model.Pedido, App.Model.ProdutoPedido;
 
 {$R *.dfm}
 
@@ -105,6 +109,29 @@ begin
   ComboBoxProduto.SetFocus;
 end;
 
+procedure TFormCadastroPedido.calcularTotalPedido;
+var
+  LTotalPedido : Double;
+begin
+  with DataSourceConsultaPedidoProduto do
+  try
+    Enabled      := False;
+    LTotalPedido := 0;
+
+    DataSet.First;
+    while not DataSet.Eof do
+    begin
+      LTotalPedido := LTotalPedido
+                    + DataSet.FieldByName('VALOR_TOTAL').AsFloat;
+
+      DataSet.Next;
+    end;
+  finally
+    LabelTotalPedido.Caption := FormatFloat(',0.00', LTotalPedido);
+    Enabled                  := True;
+  end;
+end;
+
 procedure TFormCadastroPedido.calcularTotalProduto;
 begin
   LabelTotalProduto.Caption := FormatFloat(',0.00',
@@ -115,9 +142,6 @@ end;
 procedure TFormCadastroPedido.ChangeConsultaProdutoPedido;
 begin
   try
-    if Assigned(FProdutoPedidoController) then
-      FreeAndNil(FProdutoPedidoController);
-
     InstanceProdutoPedidoController;
 
     FProdutoPedidoController.CodigoPedido   := StrToIntDef(LabeledEditCodigo.Text,0);
@@ -148,10 +172,8 @@ end;
 
 procedure TFormCadastroPedido.ClearProdutoPedido;
 begin
-  FRecordDataSetProdutoPedido := 0;
-
   LabeledEditQuantidade.Clear;
-  LabeledEditCodigoProdutoPedido.Clear;
+  LabeledEditRegistro.Clear;
 
   LabelValorUnitario.Caption := '0,00';
   LabelTotalProduto.Caption  := '0,00';
@@ -216,13 +238,37 @@ begin
       Exit;
     end;
 
-    if PanelCadastroProdutoPedido.Visible then
+    if (PanelCadastroProdutoPedido.Visible) and
+       (ComboBoxProduto.ItemIndex > 0) then
     begin
       Application.MessageBox(PChar('Salve o produto do pedido antes de gravar o pedido.'),PChar('Aviso'),
         MB_OK + MB_ICONWARNING);
 
       Exit;
     end;
+  end;
+
+  Result := True;
+end;
+
+function TFormCadastroPedido.ConsistFormProdutoPedido: Boolean;
+begin
+  Result := False;
+
+  if ComboBoxProduto.ItemIndex <= 0 then
+  begin
+    Application.MessageBox(PChar('Selecione um produto.'),PChar('Aviso'),
+      MB_OK + MB_ICONWARNING);
+
+    Exit;
+  end;
+
+  if ConvertStringToDouble(LabeledEditQuantidade.Text)= 0 then
+  begin
+    Application.MessageBox(PChar('Preencha a quantidade.'),PChar('Aviso'),
+      MB_OK + MB_ICONWARNING);
+
+    Exit;
   end;
 
   Result := True;
@@ -294,11 +340,10 @@ begin
   begin
     SelectItemComboProduto(DataSet.FieldByName('CODIGO_PRODUTO').AsInteger);
 
-    FRecordDataSetProdutoPedido         := DataSet.RecNo;
-    LabeledEditCodigoProdutoPedido.Text := DataSet.FieldByName('CODIGO').AsString;
-    LabeledEditQuantidade.Text          := DataSet.FieldByName('QUANTIDADE').AsString;
-    LabelValorUnitario.Caption          := FormatFloat(',0.00', DataSet.FieldByName('VALOR_UNITARIO').AsFloat);
-    LabelTotalProduto.Caption           := FormatFloat(',0.00', DataSet.FieldByName('VALOR_TOTAL').AsFloat);
+    LabeledEditRegistro.Text    := DataSet.RecNo.ToString;
+    LabeledEditQuantidade.Text  := DataSet.FieldByName('QUANTIDADE').AsString;
+    LabelValorUnitario.Caption  := FormatFloat(',0.00', DataSet.FieldByName('VALOR_UNITARIO').AsFloat);
+    LabelTotalProduto.Caption   := FormatFloat(',0.00', DataSet.FieldByName('VALOR_TOTAL').AsFloat);
   end;
 end;
 
@@ -328,8 +373,17 @@ begin
   Controller := TPedidoController.Create;
 end;
 
+procedure TFormCadastroPedido.InstanceObjectPost;
+begin
+  inherited;
+  ObjectPost := TPedido.Create;
+end;
+
 procedure TFormCadastroPedido.InstanceProdutoPedidoController;
 begin
+  if Assigned(FProdutoPedidoController) then
+    FreeAndNil(FProdutoPedidoController);
+
   FProdutoPedidoController := TProdutoPedidoController.Create;
 end;
 
@@ -412,7 +466,44 @@ begin
     LPedido.DataEmissao   := CalendarPickerDataEmissao.Date;
     LPedido.CodigoCliente := SelectedItemComboModel(ComboBoxCliente);
     LPedido.ValorTotal    := ConvertStringToDouble(LabelTotalPedido.Caption);
-   except
+
+    PostProdutoPedido;
+  except
+    raise;
+  end;
+end;
+
+procedure TFormCadastroPedido.PostProdutoPedido;
+var
+  LProdutoPedido : TProdutoPedido;
+begin
+  with TPedidoController(Controller) do
+  try
+    RemoveItemsListProdutoPedidos;
+    ListRemoveProdutoPedidos := Self.FListRemoveProdutosPedido;
+
+    with DataSourceConsultaPedidoProduto do
+    try
+      Enabled := False;
+
+      DataSet.First;
+      while not DataSet.Eof do
+      begin
+        LProdutoPedido := TProdutoPedido.Create;
+        LProdutoPedido.Codigo        := DataSet.FieldByName('CODIGO').AsInteger;
+        LProdutoPedido.CodigoProduto := DataSet.FieldByName('CODIGO_PRODUTO').AsInteger;
+        LProdutoPedido.Quantidade    := DataSet.FieldByName('QUANTIDADE').AsFloat;
+        LProdutoPedido.ValorUnitario := DataSet.FieldByName('VALOR_UNITARIO').AsFloat;
+        LProdutoPedido.ValorTotal    := DataSet.FieldByName('VALOR_TOTAL').AsFloat;
+
+        ListProdutoPedidos.Add(LProdutoPedido);
+
+        DataSet.Next;
+      end;
+    finally
+      Enabled := True;
+    end;
+  except
     raise;
   end;
 end;
@@ -437,9 +528,42 @@ begin
 end;
 
 procedure TFormCadastroPedido.SpeedButtonSalvarProdutoPedidoClick(Sender: TObject);
+var
+  LIsNew : Boolean;
 begin
   inherited;
-//
+  if not ConsistFormProdutoPedido then
+    Exit;
+
+  with DataSourceConsultaPedidoProduto do
+  begin
+    LIsNew := True;
+    if StrToIntDef(LabeledEditRegistro.Text, 0) <= 0  then
+    begin
+      DataSet.Append;
+      DataSet.FieldByName('CODIGO_PRODUTO').AsInteger := 0;
+    end
+    else
+    begin
+      LIsNew        := False;
+      DataSet.RecNo := StrToIntDef(LabeledEditRegistro.Text, 0);
+
+      DataSet.Edit;
+    end;
+
+    DataSet.FieldByName('CODIGO_PRODUTO').AsInteger := SelectedItemComboModel(ComboBoxProduto);
+    DataSet.FieldByName('PRODUTO').AsString         := ComboBoxProduto.Text;
+    DataSet.FieldByName('QUANTIDADE').AsFloat       := ConvertStringToDouble(LabeledEditQuantidade.Text);
+    DataSet.FieldByName('VALOR_UNITARIO').AsFloat   := ConvertStringToDouble(LabelValorUnitario.Caption);
+    DataSet.FieldByName('VALOR_TOTAL').AsFloat      := ConvertStringToDouble(LabelTotalProduto.Caption);
+    DataSet.Post;
+
+    calcularTotalPedido;
+
+    ClearProdutoPedido;
+    if not LIsNew then
+      ClosePanelCadastroProdutoPedido;
+  end;
 end;
 
 procedure TFormCadastroPedido.SpeedButtonAlterarProdutoPedidoClick(
@@ -484,6 +608,7 @@ begin
       DataSet.Delete;
     end;
 
+    calcularTotalPedido;
     MessageSuccessOperation;
   except
     raise;

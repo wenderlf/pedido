@@ -59,9 +59,9 @@ end;
 
 procedure TPedidoPersistence.SetInfoFieldsDataSet(const ADataSet: TFDMemTable);
 begin
-  SetNameFieldDataSet(ADataSet, 'CODIGO', 'Número Pedido');
-  SetNameFieldDataSet(ADataSet, 'DATA_EMISSAO', 'Data Emissão');
-  SetNameFieldDataSet(ADataSet, 'VALOR_TOTAL', 'Valor Total');
+  SetNameFieldDataSet(ADataSet, 'CODIGO', 'Número Pedido', 10);
+  SetNameFieldDataSet(ADataSet, 'DATA_EMISSAO', 'Data Emissão', 10);
+  SetNameFieldDataSet(ADataSet, 'VALOR_TOTAL', 'Valor Total', 15);
   SetNameFieldDataSet(ADataSet, 'CLIENTE', 'Cliente', 50);
 end;
 
