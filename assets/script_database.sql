@@ -101,7 +101,7 @@ VALUES
 INSERT INTO `controle_pedido`.`produto` 
        (`descricao`,`preco_venda`)
 VALUES
-       ('CHILETE', '0.10'),
+       ('CHICLETE', '0.10'),
        ('HALLS CEREJA', '1.19'),
        ('CHOCOLATE MEIO AMARGO', '0.50'),
        ('CHOCOLATE', '0.49'),
